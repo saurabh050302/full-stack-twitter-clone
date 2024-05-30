@@ -1,4 +1,3 @@
-const express = require("express");
 const {
   getMe,
   signup,
@@ -7,6 +6,7 @@ const {
 } = require("../controllers/auth.controllers");
 const protectRoute = require("../middlewares/protectRoute");
 
+const express = require("express");
 const router = express.Router();
 
 router.get("/me", protectRoute, getMe);
