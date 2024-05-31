@@ -6,6 +6,8 @@ const cloudinary = require("cloudinary").v2;
 const authRoutes = require("./routes/auth.routes");
 const userRoutes = require("./routes/user.routes");
 const postRoutes = require("./routes/post.routes");
+const notificationRoutes = require("./routes/notification.routes");
+
 const connectMongoDB = require("./database/connectMongo");
 
 dotenv.config();
@@ -25,6 +27,7 @@ app.use(cookieparser());
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/post", postRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

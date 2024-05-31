@@ -23,6 +23,4 @@ router.get("/following", protectRoute, getFollowingPosts);
 router.get("/liked", protectRoute, getLikedPosts);
 router.get("/user/:user", protectRoute, getUserPosts);
 
-//
-
 module.exports = router;
