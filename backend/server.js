@@ -11,7 +11,8 @@ const notificationRoutes = require("./routes/notification.routes");
 
 const connectMongoDB = require("./database/connectMongo");
 
-dotenv.config({ path: "../.env" });
+dotenv.config();
+// dotenv.config({ path: "../.env" });
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -25,6 +26,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieparser());
+
+// app.get("/api/ping", (req, res) => {
+//   res.json({ message: "this is response" });
+//   console.log("requested");
+// });
 
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
