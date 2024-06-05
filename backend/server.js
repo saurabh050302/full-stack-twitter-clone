@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const dotenv = require("dotenv");
 const cookieparser = require("cookie-parser");
 const cloudinary = require("cloudinary").v2;
@@ -10,7 +11,7 @@ const notificationRoutes = require("./routes/notification.routes");
 
 const connectMongoDB = require("./database/connectMongo");
 
-dotenv.config();
+dotenv.config({ path: "../.env" });
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -20,6 +21,7 @@ cloudinary.config({
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieparser());
@@ -29,7 +31,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/post", postRoutes);
 app.use("/api/notifications", notificationRoutes);
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`server is listening to port : ${PORT}`);
   connectMongoDB();
