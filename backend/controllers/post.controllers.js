@@ -92,30 +92,26 @@ const addComment = async (req, res) => {
 
 const deletePost = async (req, res) => {
   try {
-    const { password } = req.body;
     const me = await User.findOne({ _id: req.userID });
     if (!me) throw { error: "invlaid user" };
+
     const post = await Post.findOne({ _id: req.params.postID });
-    if (!post) throw { error: "invlaid post" };
+    if (!post) throw new Error("this post does not exist");
 
-    if (post.owner.toString() === me._id.toString()) {
-      const result = bcrypt.compare(password, me.password);
-      if (result) {
-        me.createdPosts.pop(post._id); //remove post from owner
-        if (post.picture) {
-          await cloudinary.uploader.destroy(
-            post.picture.split("/").pop().split(".")[0]
-          );
-        }
-        await Post.deleteOne({ _id: post._id }); //remove post from postModel
-
-        res.status(200).json({ message: "post deleted" });
-      } else {
-        res.status(400).json({ error: "wrong password" });
-      }
-    } else {
+    if (!post.owner.toString() === me._id.toString())
       throw { error: "this post is not yours" };
+
+    me.createdPosts.pop(post._id); //remove post from owner
+    await me.save();
+
+    if (post.picture) {
+      await cloudinary.uploader.destroy(
+        post.picture.split("/").pop().split(".")[0]
+      );
     }
+    await Post.deleteOne({ _id: post._id }); //remove post from postModel
+
+    res.status(200).json({ message: "post deleted" });
   } catch (error) {
     res.status(500).json(error);
   }

@@ -1,11 +1,12 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
+
+import React from 'react'
+import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
+// const { BrowserRouter } = require("react-router-dom") // require not defined ????
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
-// const { BrowserRouter } = require("react-router-dom") // require not defined ????
 
 const queryClient = new QueryClient({
   defaultOptions: {

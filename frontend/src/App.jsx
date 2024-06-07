@@ -22,7 +22,7 @@ function App() {
         const res = await fetch("/api/auth/me");
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "something went wrong!")
-        console.log(data);
+        // console.log(data);
         return data;
       } catch (error) {
         throw error
