@@ -8,13 +8,18 @@ const bcrypt = require("bcryptjs");
 const createPost = async (req, res) => {
   try {
     const { text, picture } = req.body;
+    if (!text && !picture) throw new Error("cannot create empty post");
+
     let me = await User.findOne({ _id: req.userID });
 
-    let pictureURL;
-    cloudinary.uploader.upload(picture, (err, result) => {
-      if (err) console.log(err);
-      else pictureURL = result.secure_url;
-    });
+    const pictureURL = await cloudinary.uploader
+      .upload(picture)
+      .then((result) => {
+        return result.secure_url;
+      })
+      .catch((error) => {
+        throw error;
+      });
 
     const post = await Post.create({
       owner: me._id,
@@ -26,7 +31,7 @@ const createPost = async (req, res) => {
 
     res.status(200).json(post);
   } catch (error) {
-    res.status(500).json({ error: error });
+    res.status(500).json({ error: error.message });
   }
 };
 
