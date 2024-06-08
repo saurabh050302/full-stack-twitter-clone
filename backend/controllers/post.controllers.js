@@ -96,7 +96,7 @@ const addComment = async (req, res) => {
       type: "comment",
     });
 
-    res.status(200).json({ post });
+    res.status(200).json({ updatedComments: post.comments });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "error at addComment" });
