@@ -59,14 +59,14 @@ const followUnfollowUser = async (req, res) => {
 
 const getSuggestedProfiles = async (req, res) => {
   try {
-    const me = await User.findOne({ _id: req.userID });
+    const me = await User.findOne({ _id: req.userID }).select("-password");
     const usersFollowedByMe = me.following;
     const excludedUsers = [...usersFollowedByMe, me._id];
 
     const allUsers = await User.find();
-    const suggestedUsers = await User.find({
-      _id: { $nin: excludedUsers },
-    }).select("-password");
+    const suggestedUsers = await User.find({ _id: { $nin: excludedUsers } })
+      .limit(4)
+      .select("-password");
     // console.log(suggestedUsers);
     res.status(200).json(suggestedUsers);
   } catch (error) {

@@ -10,21 +10,22 @@ const createPost = async (req, res) => {
     const { text, picture } = req.body;
     if (!text && !picture) throw new Error("cannot create empty post");
 
-    let me = await User.findOne({ _id: req.userID });
+    let pictureURL = "";
+    if (picture) {
+      await cloudinary.uploader
+        .upload(picture)
+        .then((result) => (pictureURL = result.secure_url))
+        .catch((error) => {
+          throw error;
+        });
+    }
 
-    const pictureURL = await cloudinary.uploader
-      .upload(picture)
-      .then((result) => {
-        return result.secure_url;
-      })
-      .catch((error) => {
-        throw error;
-      });
+    let me = await User.findOne({ _id: req.userID });
 
     const post = await Post.create({
       owner: me._id,
       text,
-      picture: pictureURL || "",
+      picture: pictureURL,
     });
     me.createdPosts.push(post._id);
     await me.save();
