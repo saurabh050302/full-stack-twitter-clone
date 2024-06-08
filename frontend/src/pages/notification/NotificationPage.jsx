@@ -79,7 +79,9 @@ const NotificationPage = () => {
                                 </div>
                                 <div className='flex gap-1'>
                                     <span className='font-bold'>@{notification.from.username}</span>{" "}
-                                    {notification.type === "follow" ? "followed you" : "liked your post"}
+                                    {notification.type === "follow" && "followed you"}
+                                    {notification.type === "like" && "liked your post"}
+                                    {notification.type === "comment" && "commented on your post"}
                                 </div>
                             </Link>
                         </div>
