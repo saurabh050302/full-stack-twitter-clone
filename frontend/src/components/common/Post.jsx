@@ -17,7 +17,7 @@ const Post = ({ post }) => {
 
     // console.log(post);
     let isMyPost = me._id === post.owner._id;
-    const isLiked = post.likedBy.includes(me._id);
+    const isLiked = post.likedBy?.includes(me._id);
     const formattedDate = post.createdAt;
 
     const [comment, setComment] = useState("");
@@ -25,14 +25,14 @@ const Post = ({ post }) => {
 
     const queryClient = useQueryClient();
 
-    const { mutate: deletePost, isPending } = useMutation({
+    //useMutation for deleting post
+    const { mutate: deletePost, isPending: isDeleting } = useMutation({
         mutationFn: async () => {
-            try {
-                const res = await fetch(`/api/post/delete/${post._id}`, { method: "DELETE", });
-                if (!res.ok) throw new Error("Could not delete post");
-            } catch (error) {
-                throw error;
-            }
+            const res = await fetch(`/api/post/delete/${post._id}`, { method: "DELETE", });
+            const data = await res.json();
+            if (!res.ok) throw new Error("Could not delete post");
+            throw error;
+            console.log(data);
         },
         onSuccess: () => {
             toast.success("post deleted");
@@ -40,14 +40,37 @@ const Post = ({ post }) => {
         },
         onError: () => toast.error("could not delete post")
     })
-
     const handleDeletePost = () => { deletePost() };
 
     const handlePostComment = (e) => {
         e.preventDefault();
     };
 
-    const handleLikePost = () => { };
+    //useMutation for liking post
+    const { mutate: likePost, isPending: isLiking } = useMutation({
+        mutationFn: async (postID) => {
+            const res = await fetch(`/api/post/like/${postID}`, { method: "POST" });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "could not like post")
+            return data;
+        },
+        onSuccess: (data) => {
+            // queryClient.invalidateQueries({ queryKey: ["posts"] }); //refetches all posts => bad UX
+            // hence we will use caching to update the likes without refetching all posts 
+            queryClient.setQueryData(["posts"], (oldData) => {
+                const newData = oldData.map((p) => {
+                    if (p._id === post._id) { return { ...p, likedBy: data.updatedLikes } }
+                    return p;
+                });
+                return newData;
+            });
+        },
+        onError: () => toast.error("could not like post")
+    })
+    const handleLikePost = () => {
+        // isLiking
+        likePost(post._id)
+    };
 
     return (
         <div className='flex gap-2 items-start p-4 border-b border-gray-700'>
@@ -68,8 +91,8 @@ const Post = ({ post }) => {
                     </span>
                     {isMyPost && (
                         <span className='flex justify-end flex-1'>
-                            {!isPending && <FaTrash className='cursor-pointer hover:text-red-500' onClick={handleDeletePost} />}
-                            {isPending && <LoadingSpinner size="sm" />}
+                            {!isDeleting && <FaTrash className='cursor-pointer hover:text-red-500' onClick={handleDeletePost} />}
+                            {isDeleting && <LoadingSpinner size="sm" />}
                         </span>
                     )}
                 </div>
@@ -138,9 +161,7 @@ const Post = ({ post }) => {
                                         onChange={(e) => setComment(e.target.value)}
                                     />
                                     <button className='btn btn-primary rounded-full btn-sm text-white px-4'>
-                                        {isCommenting
-                                            ? (<span className='loading loading-spinner loading-md'></span>)
-                                            : ("Post")}
+                                        {isCommenting ? <LoadingSpinner size="md" /> : "Post"}
                                     </button>
                                 </form>
                             </div>
@@ -156,7 +177,6 @@ const Post = ({ post }) => {
 
                         <div className='flex gap-1 items-center group cursor-pointer' onClick={handleLikePost}>
                             {<FaRegHeart className={`w-4 h-4 cursor-pointer group-hover:text-pink-500 ${isLiked ? "text-pink-500" : "text-slate-500"}`} />}
-
                             <span className={`text-sm text-slate-500 group-hover:text-pink-500 ${isLiked && "text-pink-500"}`}>
                                 {post.likedBy.length}
                             </span>

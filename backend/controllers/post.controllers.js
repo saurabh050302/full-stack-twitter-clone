@@ -45,32 +45,39 @@ const likeUnlikePost = async (req, res) => {
   try {
     if (!post) throw (error = { message: "this post doesn't exits!!" });
 
-    let isLiked = post.likedBy.length ? post.likedBy.includes(me._id) : false;
+    let isLiked = post.likedBy?.includes(me._id);
 
     if (isLiked) {
       me.likedPosts.pop(post._id);
       await me.save();
       post.likedBy.pop(me._id);
       await post.save();
-      res.status(200).json({ message: "post unliked" });
+
+      const updatedLikes = post.likedBy.filter((id) => {
+        id.toString() !== me._id.toString();
+      });
+      res.status(200).json({ updatedLikes });
     } else {
       me.likedPosts.push(post._id);
       await me.save();
       post.likedBy.push(me._id);
       await post.save();
 
-      // TODO : remove noti for liking own post
-      const noti = await Notification.create({
-        from: me._id,
-        to: post.owner,
-        type: "like",
-      });
+      // no notification when liking own post
+      if (!me._id.toString() === post.owner.toString()) {
+        const noti = await Notification.create({
+          from: me._id,
+          to: post.owner,
+          type: "like",
+        });
+      }
 
-      res.status(200).json({ message: "post liked" });
+      const updatedLikes = post.likedBy;
+      res.status(200).json({ updatedLikes });
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "likeUnlikePost failed" });
+    res.status(500).json({ error: error.message });
   }
 };
 
