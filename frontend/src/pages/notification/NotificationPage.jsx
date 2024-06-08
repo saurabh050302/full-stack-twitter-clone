@@ -1,37 +1,44 @@
 import { Link } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
 import LoadingSpinner from "../../components/common/LoadingSpinner";
+import toast from "react-hot-toast";
 
 import { IoSettingsOutline } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa6";
+import { FaComment } from "react-icons/fa";
 
 const NotificationPage = () => {
-    const isLoading = false;
-    const notifications = [
-        {
-            _id: "1",
-            from: {
-                _id: "1",
-                username: "johndoe",
-                profileImg: "/avatars/boy2.png",
-            },
-            type: "follow",
-        },
-        {
-            _id: "2",
-            from: {
-                _id: "2",
-                username: "janedoe",
-                profileImg: "/avatars/girl1.png",
-            },
-            type: "like",
-        },
-    ];
 
-    const deleteNotifications = () => {
-        alert("All notifications deleted");
-    };
+    const { data: notifications, isLoading } = useQuery({
+        queryKey: ["notifications"],
+        queryFn: async () => {
+            try {
+                const res = await fetch("/api/notifications");
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || "could not get notification")
+                return data;
+            } catch {
+                toast.error(error.message);
+            }
+        }
+    })
+
+    const queryClient = useQueryClient();
+    const { mutate: deleteNotifications, isPending, isError, error } = useMutation({
+        mutationFn: async () => {
+            const res = await fetch("/api/notifications/", { method: "DELETE" });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "could not delete")
+            return data;
+        },
+        onSuccess: (data) => {
+            queryClient.invalidateQueries({ queryKey: ["notifications"] })
+            toast.success(data.message)
+        },
+        onError: () => { toast.error(error.message) }
+    })
 
     return (
         <>
@@ -60,9 +67,10 @@ const NotificationPage = () => {
 
                 {notifications?.map((notification) => (
                     <div className='border-b border-gray-700' key={notification._id}>
-                        <div className='flex gap-2 p-4'>
+                        <div className='flex items-start gap-2 p-4'>
                             {notification.type === "follow" && <FaUser className='w-7 h-7 text-primary' />}
-                            {notification.type === "like" && <FaHeart className='w-7 h-7 text-red-500' />}
+                            {notification.type === "like" && <FaHeart className='w-8 h-8 text-red-500' />}
+                            {notification.type === "comment" && <FaComment className='w-7 h-7 text-blue-500' />}
                             <Link to={`/profile/${notification.from.username}`}>
                                 <div className='avatar'>
                                     <div className='w-8 rounded-full'>

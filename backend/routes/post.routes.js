@@ -20,7 +20,7 @@ router.delete("/delete/:postID", protectRoute, deletePost);
 
 router.get("/all", protectRoute, getAllPosts);
 router.get("/following", protectRoute, getFollowingPosts);
-router.get("/liked", protectRoute, getLikedPosts);
 router.get("/user/:user", protectRoute, getUserPosts);
+router.get("/liked/:user", protectRoute, getLikedPosts);
 
 module.exports = router;

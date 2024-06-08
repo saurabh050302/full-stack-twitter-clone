@@ -5,7 +5,7 @@ const User = require("../models/user.model");
 const Notification = require("../models/notification.model");
 
 const getUserProfile = async (req, res) => {
-  const username = req.body.username;
+  const username = req.params.username;
   try {
     const user = await User.findOne({ username }).select("-password");
     if (user) {

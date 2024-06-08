@@ -24,3 +24,7 @@ const getFormattedTime = (timestamp) => {
 };
 
 export default getFormattedTime;
+
+export const getJoinedSince = (createdAt) => {
+  return createdAt.split("-").slice(0, 2).reverse().join("-");
+};

@@ -157,7 +157,7 @@ const getLikedPosts = async (req, res) => {
       .select("likedPosts");
     if (!likedPosts) throw { error: "no likedPosts" };
 
-    res.status(200).json(likedPosts);
+    res.status(200).json(likedPosts.likedPosts);
   } catch (error) {
     res.status(500).json(error.message);
   }
@@ -187,12 +187,12 @@ const getUserPosts = async (req, res) => {
     const me = await User.findOne({ _id: req.userID });
     if (!me) throw { error: "invlaid user" };
 
-    const userPosts = await User.findOne({ _id: req.params.user })
+    const userPosts = await User.findOne({ username: req.params.user })
       .select("createdPosts")
       .populate({ path: "createdPosts" })
       .sort("createdAt");
 
-    res.status(200).json(userPosts);
+    res.status(200).json(userPosts.createdPosts);
   } catch (error) {
     res.status(500).json(error.message);
   }

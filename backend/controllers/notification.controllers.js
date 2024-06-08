@@ -10,7 +10,7 @@ const getNotifications = async (req, res) => {
       .sort({ createdAt: -1 })
       .populate({ path: "from", select: "username fullname profileImg" });
     await Notification.updateMany({ to: me._id }, { read: true });
-    if (!notifications) throw { error: "no notifications" };
+    // if (!notifications) res.status(200).json(notifications);
 
     res.status(200).json(notifications);
   } catch (error) {

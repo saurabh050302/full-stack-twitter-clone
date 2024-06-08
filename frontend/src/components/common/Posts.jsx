@@ -4,11 +4,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { useEffect } from "react";
 
-const Posts = ({ feedType }) => {
+const Posts = ({ feedType, username }) => {
 
     const getEndPoint = (feedType) => {
-        if (feedType === "following") return "/api/post/following"
-        else return "/api/post/all";
+        if (feedType === "forYou") return "/api/post/all";
+        if (feedType === "following") return "/api/post/following";
+        if (feedType === "posts") return `/api/post/user/${username}`;
+        if (feedType === "likes") return `/api/post/liked/${username}`;
+
+        return "/api/post/all";
     }
 
     const postEndPoint = getEndPoint(feedType);
@@ -20,6 +24,7 @@ const Posts = ({ feedType }) => {
                 const res = await fetch(postEndPoint);
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || "something wnrt wrong")
+                // console.log(data);
                 return data;
             } catch (error) {
                 throw error;
@@ -31,7 +36,7 @@ const Posts = ({ feedType }) => {
     // to refetch posts when feedType is changed
     useEffect(() => {
         refetch();
-    }, [feedType, refetch])
+    }, [feedType, username, refetch])
 
     return (
         <>
@@ -42,7 +47,7 @@ const Posts = ({ feedType }) => {
                     <PostSkeleton />
                 </div>
             )}
-            {!isLoading && !isRefetching && posts.length === 0 && <p className='text-center my-4'>No posts in this tab. Switch 👻</p>}
+            {!isLoading && !isRefetching && posts?.length === 0 && <p className='text-center my-4'>No posts in this tab. Switch 👻</p>}
             {!isLoading && !isRefetching && posts && (
                 <div>
                     {posts.map((post) => (
