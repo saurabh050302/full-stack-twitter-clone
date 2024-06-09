@@ -10,9 +10,11 @@ import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getJoinedSince } from "../../utils/date/getDate";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
+import toast from "react-hot-toast";
+import { Promise } from "mongoose";
 
 const ProfilePage = () => {
     const [coverImg, setCoverImg] = useState(null);
@@ -52,6 +54,30 @@ const ProfilePage = () => {
             reader.readAsDataURL(file);
         }
     };
+
+    const queryClient = useQueryClient();
+    const { mutate: updateImg, isPending: isUpdatingImg, error } = useMutation({
+        mutationFn: async () => {
+            const res = await fetch("/api/user/update", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ profileImg, coverImg })
+            });
+            const data = await res.json();
+            console.log(data);
+            if (!res.ok) throw new Error(data.error || "could not update image")
+            return data;
+        },
+        onSuccess: () => {
+            Promise.all(
+                queryClient.invalidateQueries({ queryKey: ["authUser"] }),
+                queryClient.invalidateQueries({ queryKey: ["user"] }),
+            ).then(toast.success("image updated"))
+            setCoverImg(null);
+            setProfileImg(null);
+        },
+        onError: () => { toast.error(error) }
+    })
 
     return (
         <div className='flex-[4_4_0]  border-r border-gray-700 min-h-screen '>
@@ -132,7 +158,7 @@ const ProfilePage = () => {
                             {(coverImg || profileImg) && (
                                 <button
                                     className='btn btn-primary rounded-full btn-sm text-white px-4 ml-2'
-                                    onClick={() => alert("Profile updated successfully")}
+                                    onClick={(e) => { e.preventDefault(); updateImg(); }}
                                 >
                                     Update
                                 </button>

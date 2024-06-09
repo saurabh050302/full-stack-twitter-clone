@@ -75,55 +75,57 @@ const getSuggestedProfiles = async (req, res) => {
 };
 
 const updateUserProfile = async (req, res) => {
-  let newUserData = req.body;
-  const me = await User.findOne({ _id: req.userID });
+  let newData = req.body.formData;
+  let { profileImg, coverImg } = req.body;
+  let me = await User.findOne({ _id: req.userID });
 
   try {
-    if (!newUserData.password) throw (error = { message: "provide password" });
-    const result = await bcrypt.compare(newUserData.password, me.password);
+    if (profileImg) {
+      if (me.profileImg) {
+        await cloudinary.uploader.destroy(
+          me.profileImg.split("/").pop().split(".")[0]
+        );
+      }
+      const uploadedResponse = await cloudinary.uploader.upload(profileImg);
+      me.profileImg = uploadedResponse.secure_url;
+      await me.save();
+    }
+
+    if (coverImg) {
+      if (me.coverImg) {
+        await cloudinary.uploader.destroy(
+          me.coverImg.split("/").pop().split(".")[0]
+        );
+      }
+      const uploadedResponse = await cloudinary.uploader.upload(coverImg);
+      me.coverImg = uploadedResponse.secure_url;
+      await me.save();
+    }
+
+    if (!newData) return res.status(200).json(me);
+
+    const result = await bcrypt.compare(newData.currentPassword, me.password);
     if (result) {
-      if (newUserData.profileImg) {
-        if (me.profileImg) {
-          await cloudinary.uploader.destroy(
-            me.profileImg.split("/").pop().split(".")[0]
-          );
-        }
-        const uploadedResponse = await cloudinary.uploader.upload(
-          newUserData.profileImg
-        );
-        newUserData.profileImg = uploadedResponse.secure_url;
-      }
+      newData.currentPassword = me.password;
+      newData.followers = me.followers;
+      newData.following = me.following;
 
-      if (newUserData.coverImg) {
-        if (me.coverImg) {
-          await cloudinary.uploader.destroy(
-            me.coverImg.split("/").pop().split(".")[0]
-          );
-        }
-        const uploadedResponse = await cloudinary.uploader.upload(
-          newUserData.coverImg
-        );
-        newUserData.coverImg = uploadedResponse.secure_url;
-      }
-
-      newUserData.password = me.password;
-      newUserData.followers = me.followers;
-      newUserData.following = me.following;
-
-      // console.log(newUserData);
-
-      await User.findOneAndUpdate({ _id: req.userID }, newUserData);
-      res.status(200).json({ message: "profile updated" });
+      await User.findOneAndUpdate({ _id: req.userID }, newData);
+      const user = await User.findOne({ _id: req.userID }).select("-password");
+      res.status(200).json(user);
     } else {
-      res.status(400).json({ error: "wrong password" });
+      throw { error: "wrong password :?" };
     }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.log(error);
+    res.status(500).json(error);
   }
 };
 
 const changePassword = async (req, res) => {
-  const { newPassword, currentPassword } = req.body;
+  const { currentPassword, newPassword, confirmNewPassword } = req.body;
+  if (!newPassword === confirmNewPassword)
+    return res.status(400).json({ error: "new password do not match" });
   try {
     let me = await User.findOne({ _id: req.userID });
     const result = await bcrypt.compare(currentPassword, me.password);
