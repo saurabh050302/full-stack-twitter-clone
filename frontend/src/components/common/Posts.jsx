@@ -24,7 +24,7 @@ const Posts = ({ feedType, username }) => {
                 const res = await fetch(postEndPoint);
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || "something wnrt wrong")
-                // console.log(data);
+                // console.log(data[0]);
                 return data;
             } catch (error) {
                 throw error;
@@ -35,6 +35,7 @@ const Posts = ({ feedType, username }) => {
 
     // to refetch posts when feedType is changed
     useEffect(() => {
+        getEndPoint(feedType);
         refetch();
     }, [feedType, username, refetch])
 

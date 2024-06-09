@@ -18,7 +18,6 @@ const Post = ({ post }) => {
     // logged in user
     const { data: me } = useQuery({ queryKey: ["authUser"] });
 
-    // console.log(post);
     let isMyPost = me._id === post.owner._id;
     const isLiked = post.likedBy?.includes(me._id);
     const formattedDate = getFormattedTime(post.createdAt);

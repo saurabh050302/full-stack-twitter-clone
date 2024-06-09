@@ -41,13 +41,13 @@ const followUnfollowUser = async (req, res) => {
           type: "follow",
         });
         // TODO : response
-        res.status(200).json({ message: "follow successful" });
+        res.status(200).json(user);
       } else {
         user.followers.pop(me._id);
         await user.save();
         me.following.pop(user._id);
         await me.save();
-        res.status(200).json({ message: "unfollow successful" });
+        res.status(200).json(user);
       }
     } else {
       res.status(400).json({ error: "user not found" });

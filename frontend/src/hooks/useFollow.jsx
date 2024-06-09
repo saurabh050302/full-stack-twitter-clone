@@ -15,13 +15,16 @@ const useFollow = () => {
                 })
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || "followUnfollow failed")
-            console.log(data);
+            // console.log(data);
+            return data;
         },
-        onSuccess: () => {
+        onSuccess: (data) => {
             Promise
                 .all([
                     queryClient.invalidateQueries({ queryKey: ["suggestedUsers"] }),
-                    queryClient.invalidateQueries({ queryKey: ["authUser"] })])
+                    queryClient.invalidateQueries({ queryKey: ["authUser"] })],
+                    queryClient.setQueryData(["user"], (oldData) => { return { ...oldData, followers: data.followers, following: data.following } }) // BUG :/
+                )
                 .then(() => toast.success("follow successful"))
         },
         onError: () => toast.error(error.message)
