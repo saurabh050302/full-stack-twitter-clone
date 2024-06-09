@@ -43,13 +43,13 @@ const EditProfileModal = () => {
             // console.log(error);
             toast.error("Could not updated Profile")
         }
-    })
+    });
 
     const [passwordData, setPasswordData] = useState({
         currentPassword: "",
         newPassword: "",
         confirmNewPassword: ""
-    })
+    });
 
     const handlePasswordChange = (e) => {
         setPasswordData({ ...passwordData, [e.target.name]: e.target.value });
@@ -69,7 +69,7 @@ const EditProfileModal = () => {
         },
         onSuccess: () => { toast.success("password changed succeffully") },
         onError: () => { toast.error("could not update password") }
-    })
+    });
 
     return (
         <div className="flex items-center gap-1">

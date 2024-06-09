@@ -160,7 +160,7 @@ const ProfilePage = () => {
                                     className='btn btn-primary rounded-full btn-sm text-white px-4 ml-2'
                                     onClick={(e) => { e.preventDefault(); updateImg(); }}
                                 >
-                                    Update
+                                    {isUpdatingImg ? "Updating..." : "Update"}
                                 </button>
                             )}
                         </div>

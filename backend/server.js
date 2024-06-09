@@ -1,3 +1,4 @@
+const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
@@ -21,6 +22,7 @@ cloudinary.config({
 });
 
 const app = express();
+const dirname = path.resolve();
 
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
@@ -36,6 +38,14 @@ app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/post", postRoutes);
 app.use("/api/notifications", notificationRoutes);
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(dirname, "/frontend/dist")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(dirname, "frontend", "dist", "index.html"));
+  });
+}
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
