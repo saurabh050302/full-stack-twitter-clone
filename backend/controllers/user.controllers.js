@@ -70,7 +70,7 @@ const getSuggestedProfiles = async (req, res) => {
     // console.log(suggestedUsers);
     res.status(200).json(suggestedUsers);
   } catch (error) {
-    res.status(500).json({ error: "getSuggestedProfiles failed" });
+    res.status(500).json({ error: error.message });
   }
 };
 

@@ -44,6 +44,7 @@ const signup = async (req, res) => {
       password: hashedPassword,
     });
 
+    console.log(newUser);
     if (newUser) {
       setJWTcookie(newUser._id, res);
       await newUser.save();
@@ -54,8 +55,8 @@ const signup = async (req, res) => {
     }
 
     //
-  } catch (err) {
-    res.status(500).json({ error: "signup failed" });
+  } catch (error) {
+    res.status(500).json(error);
   }
 };
 
@@ -67,7 +68,8 @@ const login = async (req, res) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     emailRegex.test(loginText) ? (email = loginText) : (username = loginText);
 
-    const user = (await User.findOne({ email })) || (await User.findOne({ username }));
+    const user =
+      (await User.findOne({ email })) || (await User.findOne({ username }));
     if (user) {
       bcrypt.compare(password, user.password, (err, result) => {
         if (err) {
@@ -90,7 +92,7 @@ const login = async (req, res) => {
 
     //
   } catch (error) {
-    res.status(500).json({ error: "login failed" });
+    res.status(500).json(error);
   }
 };
 
@@ -99,7 +101,7 @@ const logout = async (req, res) => {
     res.cookie("token", "", { maxAge: 0 });
     res.status(200).json({ message: "logout successful" });
   } catch (error) {
-    res.status(500).json({ error: "logout failed" });
+    res.status(500).json(error);
   }
 };
 
@@ -108,7 +110,7 @@ const getMe = async (req, res) => {
     const user = await User.findOne({ _id: req.userID }).select("-password");
     res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({ error: "getMe failed" });
+    res.status(500).json({ error: error.message });
   }
 };
 

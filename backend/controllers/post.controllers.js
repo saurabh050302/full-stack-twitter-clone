@@ -32,7 +32,7 @@ const createPost = async (req, res) => {
 
     res.status(200).json(post);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json(error);
   }
 };
 
@@ -77,7 +77,7 @@ const likeUnlikePost = async (req, res) => {
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json(error);
   }
 };
 
@@ -99,7 +99,7 @@ const addComment = async (req, res) => {
     res.status(200).json({ updatedComments: post.comments });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "error at addComment" });
+    res.status(500).json(error);
   }
 };
 
@@ -143,7 +143,7 @@ const getAllPosts = async (req, res) => {
 
     res.status(200).json(allPosts);
   } catch (error) {
-    res.status(500).json(error.message);
+    res.status(500).json(error);
   }
 };
 
@@ -162,7 +162,7 @@ const getLikedPosts = async (req, res) => {
 
     res.status(200).json(likedPosts.likedPosts);
   } catch (error) {
-    res.status(500).json(error.message);
+    res.status(500).json(error);
   }
 };
 
@@ -181,7 +181,7 @@ const getFollowingPosts = async (req, res) => {
 
     res.status(200).json(followingPosts);
   } catch (error) {
-    res.status(500).json(error.message);
+    res.status(500).json(error);
   }
 };
 
@@ -200,7 +200,7 @@ const getUserPosts = async (req, res) => {
 
     res.status(200).json(userPosts.createdPosts);
   } catch (error) {
-    res.status(500).json(error.message);
+    res.status(500).json(error);
   }
 };
 
