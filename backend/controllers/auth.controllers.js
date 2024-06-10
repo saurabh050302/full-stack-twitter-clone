@@ -47,7 +47,7 @@ const signup = async (req, res) => {
     if (newUser) {
       setJWTcookie(newUser._id, res);
       await newUser.save();
-      res.json(newUser);
+      res.status(200).json(newUser);
       // res.status(200).json({ message: "signup successful" });
     } else {
       res.status(400).json({ error: "new user not created" });
@@ -67,8 +67,7 @@ const login = async (req, res) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     emailRegex.test(loginText) ? (email = loginText) : (username = loginText);
 
-    const user =
-      (await User.findOne({ email })) || (await User.findOne({ username }));
+    const user = (await User.findOne({ email })) || (await User.findOne({ username }));
     if (user) {
       bcrypt.compare(password, user.password, (err, result) => {
         if (err) {
@@ -78,7 +77,7 @@ const login = async (req, res) => {
         } else {
           if (result) {
             setJWTcookie(user._id, res);
-            res.json(user);
+            res.status(200).json(user);
             // res.status(200).json({ message: "login successful" });
           } else {
             res.status(400).json({ error: "Wrong password" });
