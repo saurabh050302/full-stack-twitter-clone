@@ -10,14 +10,15 @@ import toast from "react-hot-toast";
 
 const LoginPage = () => {
     const [loginData, setFormData] = useState({
-        loginText: "",
+        username: "",
         password: "",
     });
 
     const queryClient = useQueryClient();
 
     const { mutate, isError, error, isPending } = useMutation({
-        mutationFn: async (loginText, password) => {
+        mutationFn: async (loginData) => {
+            console.log(loginData);
             try {
                 const res = await fetch("/api/auth/login",
                     {
@@ -61,10 +62,10 @@ const LoginPage = () => {
                         <input
                             type='text'
                             className='grow'
-                            placeholder='username or email'
-                            name='loginText'
+                            placeholder='username'
+                            name='username'
                             onChange={handleInputChange}
-                            value={loginData.loginText}
+                            value={loginData.username}
                         />
                     </label>
 

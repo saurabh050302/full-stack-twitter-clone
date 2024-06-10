@@ -51,35 +51,17 @@ const signup = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { loginText, password } = req.body;
+    const { username, password } = req.body;
 
-    let username, email;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    emailRegex.test(loginText) ? (email = loginText) : (username = loginText);
+    const user = await User.findOne({ username });
+    if (!user) throw new Error("User does not exist");
 
-    const user =
-      (await User.findOne({ email })) || (await User.findOne({ username }));
-    if (user) {
-      bcrypt.compare(password, user.password, (err, result) => {
-        if (err) {
-          res
-            .status(500)
-            .json({ error: "bcrypt compare failed : login failed" });
-        } else {
-          if (result) {
-            setJWTcookie(user._id, res);
-            res.status(200).json(user);
-            // res.status(200).json({ message: "login successful" });
-          } else {
-            res.status(400).json({ error: "Wrong password" });
-          }
-        }
-      });
-    } else {
-      return res.status(400).json({ error: "User does not exist" });
-    }
-
-    //
+    bcrypt.compare(password, user.password, (err, result) => {
+      if (err) throw new Error("bcrypt compare failed");
+      if (!result) throw new Error("Wrong password");
+      setJWTcookie(user._id, res);
+      return res.status(200).json(user);
+    });
   } catch (error) {
     res.status(500).json(error);
   }
