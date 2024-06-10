@@ -22,7 +22,8 @@ const NotificationPage = () => {
             } catch {
                 toast.error(error.message);
             }
-        }
+        },
+        retry: false
     })
 
     const queryClient = useQueryClient();

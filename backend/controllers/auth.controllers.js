@@ -14,25 +14,16 @@ const signup = async (req, res) => {
     //   password: password,
     // });
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res
-        .status(400)
-        .json({ error: "invalid email address : signup failed" });
-    }
+    if (!emailRegex.test(email))
+      throw new Error("invalid email address : signup failed");
 
     const emailExists = await User.findOne({ email });
-    if (emailExists) {
-      return res.status(400).json({ error: "email already in use" });
-    }
+    if (emailExists) throw new Error("email already in use");
 
     const userExists = await User.findOne({ username });
-    if (userExists) {
-      return res.status(400).json({ error: "username already taken" });
-    }
+    if (userExists) throw new Error("username already taken");
 
-    if (password.length < 6) {
-      return res.status(400).json({ error: "password too short" });
-    }
+    if (password.length < 6) throw new Error("password too short");
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -44,14 +35,12 @@ const signup = async (req, res) => {
       password: hashedPassword,
     });
 
-    console.log(newUser);
     if (newUser) {
       setJWTcookie(newUser._id, res);
       await newUser.save();
       res.status(200).json(newUser);
-      // res.status(200).json({ message: "signup successful" });
     } else {
-      res.status(400).json({ error: "new user not created" });
+      throw new Error("new user not created");
     }
 
     //
@@ -108,9 +97,10 @@ const logout = async (req, res) => {
 const getMe = async (req, res) => {
   try {
     const user = await User.findOne({ _id: req.userID }).select("-password");
+    if (!user) throw new Error("Could not get authUser");
     res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json(error);
   }
 };
 

@@ -18,7 +18,8 @@ const RightPanel = () => {
             } catch (error) {
                 toast.error(error.message || "could not get suggested users")
             }
-        }
+        },
+        retry: false
     })
 
     const { followUser, isPending } = useFollow();
